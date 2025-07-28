@@ -15,8 +15,10 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -57,14 +59,21 @@ public class Illuminated implements ModInitializer {
 	public static boolean isHoldingPoweredFlashlight(Entity entity) {
 		if (!(entity instanceof LivingEntity living)) return false;
 
-		ItemStack item = living.getMainHandItem();
+		for (ItemStack item : new ItemStack[] {
+			living.getMainHandItem(),
+			living.getOffhandItem()
+		}) {
+			if (item.getComponents().has(DataComponents.CUSTOM_DATA)) {
+				NbtCompound tag = item.get(DataComponents.CUSTOM_DATA).copyTag();
+				if (tag.getBoolean("illuminated:on").orElse(false)) {
+					return true;
+				}
+			}
 
-		if (!item.is(FLASHLIGHT)) {
-			item = living.getOffhandItem();
-
-			if (!item.is(FLASHLIGHT)) return false;
+			if (item.is(FLASHLIGHT) && item.getOrDefault(ON, false)) {
+				return true;
+			}
 		}
-
-		return item.getOrDefault(ON, false);
+		return false;
 	}
 }
