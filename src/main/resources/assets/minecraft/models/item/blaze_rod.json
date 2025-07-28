@@ -1,0 +1,22 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "illuminated:item/flashlight_off"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 1001,
+        "illuminated:on": 1
+      },
+      "model": "illuminated:item/flashlight/on_in_hand"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 1001,
+        "illuminated:on": 0
+      },
+      "model": "illuminated:item/flashlight/off_in_hand"
+    }
+  ]
+}

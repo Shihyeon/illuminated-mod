@@ -19,7 +19,10 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.model.ModelIdentifier;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Items;
 
 @Environment(EnvType.CLIENT)
 public class IlluminatedClient implements ClientModInitializer, DynamicLightsInitializer {
@@ -37,6 +40,15 @@ public class IlluminatedClient implements ClientModInitializer, DynamicLightsIni
 		ItemProperties.register(Illuminated.FLASHLIGHT, Illuminated.id("on"),
 				(stack, level, entity, seed) ->
 						stack.getOrDefault(Illuminated.ON, false) ? 1.f : 0.f
+		);
+		ItemProperties.register(Items.BLAZE_ROD, Illuminated.id("on"),
+			(stack, level, entity, seed) -> {
+				if (stack.has(DataComponents.CUSTOM_DATA)) {
+					NbtCompound tag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+					return tag.getBoolean("illuminated:on") ? 1.f : 0.f;
+				}
+				return 0.f;
+			}
 		);
 
 		ClientTickEvents.START_WORLD_TICK.register(level -> {
